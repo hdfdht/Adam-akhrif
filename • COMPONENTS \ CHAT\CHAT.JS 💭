@@ -1,0 +1,47 @@
+import { useState, useEffect, useRef } from "react";
+
+export default function Chat() {
+  const [messages, setMessages] = useState([
+    { sender: "system", text: "مرحبا! كيف نقدر نعاونك؟" },
+  ]);
+  const [input, setInput] = useState("");
+  const ws = useRef(null);
+
+  useEffect(() => {
+    ws.current = new WebSocket("wss://your-server/chat");
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      setMessages((msgs) => [...msgs, message]);
+    };
+    ws.current.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+    return () => ws.current.close();
+  }, []);
+
+  function sendMessage() {
+    if (!input.trim()) return;
+    const msg = { sender: "user", text: input };
+    ws.current.send(JSON.stringify(msg));
+    setMessages((msgs) => [...msgs, msg]);
+    setInput("");
+  }
+
+  return (
+    <div style={{border: "1px solid #ccc", padding: 10, maxHeight: 400, overflowY: "auto"}}>
+      {messages.map((m, i) => (
+        <div key={i} style={{ textAlign: m.sender === "user" ? "right" : "left" }}>
+          <b>{m.sender}</b>: {m.text}
+        </div>
+      ))}
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        placeholder="اكتب رسالة"
+        style={{width: "100%", padding: 8, marginTop: 10}}
+      />
+      <button onClick={sendMessage}>إرسال</button>
+    </div>
+  );
+}
