@@ -1,20 +1,306 @@
 import { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useReducer,
+  useMemo,
+} from "react";
+import { FixedSizeList as List } from "react-window";
 
 export default function Chat() {
   const [messages, setMessages] = useState([
     { sender: "system", text: "مرحبا! كيف نقدر نعاونك؟" },
+// ==== Utilities ====
+
+// تنتج نومبر عشوائي كبير للأمن ضد هجمات إعادة الإرسال
+function generateNonce() {
+  const array = new Uint8Array(12);
+  window.crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+}
+
+// تحويل التاريخ الى صيغة وقت نسبي بالعربية
+const timeAgo = (ts) => {
+  const now = Date.now();
+  const diff = now - ts;
+  if (diff < 60000) return "الآن";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)} دقيقة`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)} ساعة`;
+  return `${Math.floor(diff / 86400000)} يوم`;
+};
+
+// ==== التشفير والتوقيع باستخدام Web Crypto API ====
+
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+  return window.crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 300000,
+      hash: "SHA-256",
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+// توليد زوج مفاتيح توقيع رقمي (ECDSA P-256)
+async function generateSigningKeyPair() {
+  return window.crypto.subtle.generateKey(
+    {
+      name: "ECDSA",
+      namedCurve: "P-256",
+    },
+    true,
+    ["sign", "verify"]
+  );
+}
+
+// توقيع نص
+async function signMessage(privateKey, data) {
+  const encoder = new TextEncoder();
+  const signature = await window.crypto.subtle.sign(
+    {
+      name: "ECDSA",
+      hash: { name: "SHA-256" },
+    },
+    privateKey,
+    encoder.encode(data)
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
+}
+
+// تحقق من صحة التوقيع
+async function verifySignature(publicKey, signatureBase64, data) {
+  const encoder = new TextEncoder();
+  const signature = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+  return window.crypto.subtle.verify(
+    {
+      name: "ECDSA",
+      hash: { name: "SHA-256" },
+    },
+    publicKey,
+    signature,
+    encoder.encode(data)
+  );
+}
+
+// تشفير نص باستخدام AES-GCM
+async function encrypt(text, key) {
+  const encoder = new TextEncoder();
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const data = encoder.encode(text);
+  const encrypted = await window.crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    data
+  );
+  const buffer = new Uint8Array(iv.byteLength + encrypted.byteLength);
+  buffer.set(iv, 0);
+  buffer.set(new Uint8Array(encrypted), iv.byteLength);
+  return btoa(String.fromCharCode(...buffer));
+}
+
+// فك التشفير AES-GCM
+async function decrypt(data, key) {
+  try {
+    const buffer = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    const iv = buffer.slice(0, 12);
+    const ciphertext = buffer.slice(12);
+    const decrypted = await window.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      ciphertext
+    );
+    const decoder = new TextDecoder();
+    return decoder.decode(decrypted);
+  } catch {
+    return "[فشل فك التشفير]";
+  }
+}
+
+// Debounce hook لمنع إرسال كثيف للحالة "يكتب"
+function useDebounce(callback, delay) {
+  const timeoutRef = useRef(null);
+  return useCallback(
+    (...args) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => callback(...args), delay);
+    },
+    [callback, delay]
+  );
+}
+
+// ==== Reducers للمساجات والمستخدمين ====
+
+function messagesReducer(state, action) {
+  switch (action.type) {
+    case "add":
+      if (state.find((m) => m.id === action.message.id)) return state;
+      return [...state, action.message].sort((a, b) => a.timestamp - b.timestamp);
+    case "reset":
+      return action.messages || [];
+    default:
+      return state;
+  }
+}
+
+function usersReducer(state, action) {
+  switch (action.type) {
+    case "update":
+      return { ...state, [action.username]: action.data };
+    case "remove":
+      const copy = { ...state };
+      delete copy[action.username];
+      return copy;
+    default:
+      return state;
+  }
+}
+
+// ==== صلاحيات متقدمة (مثال) ====
+
+const permissions = {
+  general: { canRead: () => true, canWrite: () => true },
+  tech: { canRead: () => true, canWrite: (user) => user.isTechMember },
+  private: { canRead: (user) => user.isPrivateMember, canWrite: (user) => user.isPrivateMember },
+};
+
+// ==== المكون الأساسي Chat المتطور ====
+
+export default function UltraSecureChat() {
+  // States
+  const [username, setUsername] = useState(localStorage.getItem("chatUser") || "");
+  const [password, setPassword] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const [channels] = useState([
+    { id: "general", name: "عام" },
+    { id: "tech", name: "تقنية" },
+    { id: "private", name: "خاص" },
   ]);
+  const [activeChannel, setActiveChannel] = useState("general");
+
+  const [messages, dispatchMessages] = useReducer(messagesReducer, []);
   const [input, setInput] = useState("");
+  const [typingUsers, setTypingUsers] = useState(new Set());
+  const [onlineUsers, dispatchUsers] = useReducer(usersReducer, {});
+
+  const [darkMode, setDarkMode] = useState(false);
+  const [status, setStatus] = useState("غير متصل");
+  const [error, setError] = useState(null);
+
+  // WebSocket و crypto
   const ws = useRef(null);
+  const cryptoKey = useRef(null);
+  const signingKeys = useRef(null);
+  const reconnectTimer = useRef(null);
+  const reconnectAttempts = useRef(0);
 
   useEffect(() => {
     ws.current = new WebSocket("wss://your-server/chat");
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       setMessages((msgs) => [...msgs, message]);
+  // Nonces لحماية إعادة الإرسال (تُخزن عند استقبال كل رسالة)
+  const receivedNonces = useRef(new Set());
+
+  // للإظهار الأخير تلقائياً
+  const messagesEndRef = useRef(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // الربط websocket مع آلية إعادة الاتصال و ping/pong
+  const connectWebSocket = useCallback(async () => {
+    if (!loggedIn || !cryptoKey.current || !signingKeys.current) return;
+
+    ws.current = new WebSocket("wss://securechat.example/api/ws");
+
+    ws.current.onopen = () => {
+      reconnectAttempts.current = 0;
+      setStatus("متصل");
+
+      // إرسال طلب الانضمام للقناة مع اسم المستخدم
+      ws.current.send(
+        JSON.stringify({ type: "join", username, channel: activeChannel })
+      );
+
+      // بدء إرسال ping كل 20 ثانية للحفاظ على الاتصال
+      ws.current.pingInterval = setInterval(() => {
+        if (ws.current.readyState === WebSocket.OPEN)
+          ws.current.send(JSON.stringify({ type: "ping" }));
+      }, 20000);
     };
     ws.current.onerror = (err) => {
       console.error("WebSocket error:", err);
+
+    ws.current.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "pong") return; // رد ping
+
+      if (data.type === "secure_message") {
+        // التحقق من nonce لمنع إعادة الإرسال
+        if (receivedNonces.current.has(data.nonce)) {
+          console.warn("تم استقبال رسالة مكررة: ", data.nonce);
+          return;
+        }
+        receivedNonces.current.add(data.nonce);
+        // تنظيف nonces قديمة لو صاروا بزاف
+        if (receivedNonces.current.size > 1000) {
+          const first = receivedNonces.current.values().next().value;
+          receivedNonces.current.delete(first);
+        }
+
+        // تحقق من التوقيع
+        const verified = await verifySignature(
+          signingKeys.current.publicKey,
+          data.signature,
+          data.encrypted
+        );
+        if (!verified) {
+          setError("تم الكشف عن رسالة غير موثوقة");
+          return;
+        }
+
+        // فك التشفير
+        const text = await decrypt(data.encrypted, cryptoKey.current);
+        dispatchMessages({ type: "add", message: { ...data.message, text } });
+        scrollToBottom();
+
+        // إشعارات ذكية للرسائل الجديدة لو التبويب مخفي
+        if (document.hidden && data.message.sender !== username) {
+          new Notification(`رسالة من ${data.message.sender}`, { body: text });
+        }
+      } else if (data.type === "typing") {
+        setTypingUsers((prev) => {
+          const newSet = new Set(prev);
+          if (data.value) newSet.add(data.username);
+          else newSet.delete(data.username);
+          return newSet;
+        });
+      } else if (data.type === "presence") {
+        dispatchUsers({
+          type: "update",
+          username: data.username,
+          data: { status: data.status },
+        });
+      } else if (data.type === "error") {
+        setError(data.message);
+      }
     };
     return () => ws.current.close();
   }, []);
@@ -44,4 +330,38 @@ export default function Chat() {
       <button onClick={sendMessage}>إرسال</button>
     </div>
   );
-}
+}}}}}}}}}    ws.current.onerror = () => {
+      setStatus("خطأ في الاتصال");
+      setError("تعذر الاتصال بالسيرفر");
+    };
+
+    ws.current.onclose = () => {
+      setStatus("غير متصل");
+      clearInterval(ws.current.pingInterval);
+      reconnectAttempts.current++;
+      const delay = Math.min(
+        30000,
+        1000 * 2 ** reconnectAttempts.current + Math.random() * 1000
+      );
+      reconnectTimer.current = setTimeout(() => {
+        connectWebSocket();
+      }, delay);
+    };
+  }, [loggedIn, username, activeChannel]);
+
+  // التهيئة عند تسجيل الدخول أو تغيير القناة
+  useEffect(() => {
+    if (!loggedIn) return;
+
+    const salt = new TextEncoder().encode(username);
+
+    deriveKey(password, salt).then(async (key) => {
+      cryptoKey.current = key;
+
+      // توليد مفاتيح توقيع جديدة
+      signingKeys.current = await generateSigningKeyPair();
+
+      connectWebSocket();
+    });
+
+    return () => {
