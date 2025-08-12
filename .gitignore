@@ -1,16 +1,27 @@
+# ===============================
+# Advanced .gitignore Template
+# بحجم حوالي 600 سطر، شاملة ومطورة بزاف
+# لتغطية أغلب الحالات، اللغات، الأدوات، والأنظمة
+# ===============================
+
+# ===============================
 # Logs
 logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+pnpm-debug.log*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data
 pids
+pids/
 *.pid
 *.seed
 *.pid.lock
@@ -20,7 +31,13 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+# ===============================
+# Directories for coverage reports and instrumentation
+coverage/
 *.lcov
+.nyc_output/
+.grunt/
+bower_components/
 
 # nyc test coverage
 .nyc_output
@@ -37,6 +54,7 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
+# ===============================
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -66,13 +84,119 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+.pnp.*
+.pnpm-debug.log*
+
+# ===============================
+# System files (macOS, Windows, Linux)
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===============================
+# Environment files
 .env
 .env.*
 !.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===============================
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+*.tmproj
+*.vscode-test/
+
+# ===============================
+# Build directories
+build/
+dist/
+tmp/
+temp/
+out/
+release/
+target/
+
+# ===============================
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ===============================
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.car
+*.class
+*.project
+*.settings/
+*.classpath
+*.factorypath
+target/
+bin/
+
+# ===============================
+# Ruby
+*.gem
+*.rbc
+.bundle/
+.config/
+.yardoc/
+_yardoc/
+coverage/
+InstalledFiles
+*.rbc
+*.so
+*.dll
+*.log
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
+# ===============================
+# PHP
+vendor/
+composer.lock
+composer.phar
+
+# ===============================
+# Node.js / JavaScript
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
 
 # Next.js build output
 .next
@@ -81,8 +205,17 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+# ===============================
+# TypeScript
+*.tsbuildinfo
 
 # Gatsby files
+# ===============================
+# React / Next.js / Vite / Angular / Vue
+.next/
+.nuxt/
+out/
+dist/
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
 # https://nextjs.org/blog/next-9-1#public-directory-support
@@ -96,6 +229,8 @@ dist
 .cache
 
 # Sveltekit cache directory
+.parcel-cache/
+.vite/
 .svelte-kit/
 
 # vitepress build output
@@ -109,21 +244,234 @@ dist
 
 # Serverless directories
 .serverless/
+# ===============================
+# Docker
+*.dockerignore
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+.docker-compose.override.yml
+.docker-compose.*.yml
+.dockerignore
+
+# ===============================
+# Kubernetes / Helm
+*.kube.*
+helm/
+charts/
+
+# ===============================
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===============================
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.sql
+
+# ===============================
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# ===============================
+# IDEs and editors specific
+*.sublime-workspace
+*.sublime-project
+*.komodoproject
+*.komodotools
+*.komodoedit
+*.tmproj
+*.c9/
+*.jscsrc
+*.jshintrc
+*.eslintrc.js
+*.eslintcache
+*.stylelintrc.json
+*.stylelintcache
+
+# ===============================
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+out/
+
+# ===============================
+# VSCode
+.vscode/
+.history/
+.projectile
+
+# ===============================
+# Emacs
+*~
+.\#*
+.auto-save-list/
+.tramp/
+
+# ===============================
+# Vim
+*.swp
+*.swo
+*.swn
+*.viminfo
+*.vscode/
+
+# ===============================
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# ===============================
+# System temp files
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+
+# ===============================
+# Miscellaneous
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ===============================
+# Sensitive keys and config files
+*.pem
+*.key
+*.crt
+*.csr
+*.der
+*.pfx
+*.p12
+
+# ===============================
+# Caches and temporary files
+.cache/
+.parcel-cache/
+.next/cache/
+.vscode-test/
+.sass-cache/
+.stylelintcache
+.eslintcache
 
 # FuseBox cache
 .fusebox/
+# ===============================
+# Yarn Integrity file
+.yarn-integrity
 
 # DynamoDB Local files
 .dynamodb/
+# ===============================
+# Parcel bundler cache
+.cache
+.parcel-cache
 
 # Firebase cache directory
 .firebase/
+# ===============================
+# Snowpack cache
+snowpack/
+
+# ===============================
+# Compiled binary addons
+build/Release/
+
+# ===============================
+# Miscellaneous OS files
+*.dll
+*.exe
+*.so
+*.dylib
+
+# ===============================
+# Archives and packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ===============================
+# Python packaging
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===============================
+# C++ and C
+*.obj
+*.o
+*.so
+*.exe
+*.out
+*.class
+
+# ===============================
+# Go
+*.exe
+*.test
+
+# ===============================
+# Rust
+*.rs.bk
+
+# ===============================
+# Log files
+*.log
+logs/
+
+# ===============================
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# ===============================
+# Backup and temporary files
+*.bak
+*.old
+*.orig
+*.tmp
+
+# ===============================
+# Docker Volumes
+volumes/
+
+# ===============================
+# Other
+*.pid
+*.seed
+*.pid.lock
 
 # TernJS port file
 .tern-port
+# ===============================
+# Custom overrides & exceptions
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+# Include important config and readme files even if their extension matches ignore patterns
+!README.md
+!LICENSE
+!*.config.js
+!*.config.json
+!.env.example
 
 # yarn v3
 .pnp.*
@@ -137,3 +485,645 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+# ===============================
+# End of .gitignore
+# ===============================
+# ===============================
+# Advanced .gitignore Template
+# حجم كبير ومتكامل لتغطية أغلب الحالات والأنظمة
+# ===============================
+
+# ===============================
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# Diagnostic reports (Node.js)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===============================
+# Coverage reports and instrumentation
+coverage/
+*.lcov
+.nyc_output/
+.grunt/
+bower_components/
+
+# ===============================
+# Build output directories
+build/
+dist/
+.tmp/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+out/
+release/
+target/
+
+# ===============================
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# ===============================
+# TypeScript cache
+*.tsbuildinfo
+
+# ===============================
+# Cache and lint files
+.npm/
+.eslintcache
+.stylelintcache
+.node_repl_history
+.yarn-integrity
+
+# ===============================
+# Output of 'npm pack'
+*.tgz
+
+# ===============================
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===============================
+# Secrets and keys (protect sensitive files)
+*.pem
+*.key
+*.p12
+*.jks
+*.pfx
+*.cer
+*.crt
+*.der
+
+# Android signing files
+*.keystore
+*.jks
+
+# iOS provisioning and certificates
+*.mobileprovision
+*.xcworkspace/
+*.xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+DerivedData/
+
+# ===============================
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.code-workspace
+*.tmproj
+*.vscode-test/
+.history/
+.projectile
+*.iml
+*.iws
+out/
+
+# ===============================
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux system files
+*~
+
+# ===============================
+# Editors backup and swap files
+*.swp
+*.swo
+*.swn
+*.viminfo
+.auto-save-list/
+.tramp/
+
+# ===============================
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# ===============================
+# Docker files
+*.dockerignore
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+
+# ===============================
+# Kubernetes / Helm
+*.kube.*
+helm/
+charts/
+
+# ===============================
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===============================
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.sql
+
+# ===============================
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# ===============================
+# Parcel bundler cache
+.cache/
+.parcel-cache/
+
+# ===============================
+# Firebase cache
+.firebase/
+
+# ===============================
+# Snowpack cache
+snowpack/
+
+# ===============================
+# FuseBox cache
+.fusebox/
+
+# ===============================
+# Miscellaneous binaries and archives
+*.dll
+*.exe
+*.so
+*.dylib
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ===============================
+# Python packaging
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===============================
+# Compiled C, C++ and Go binaries
+*.obj
+*.o
+*.exe
+*.out
+*.class
+
+# ===============================
+# Rust backup files
+*.rs.bk
+
+# ===============================
+# Logs and temporary files
+*.tmp
+*.temp
+*.old
+*.orig
+
+# ===============================
+# Docker volumes
+volumes/
+
+# ===============================
+# Other runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# ===============================
+# Yarn v3 files
+.pnp.*
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/sdks/
+!.yarn/versions/
+
+# ===============================
+# Vite logs
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ===============================
+# Custom overrides & exceptions
+
+# Keep important docs
+!README.md
+!LICENSE
+!*.config.js
+!*.config.json
+!.env.example
+# ===============================
+# EXTREME ADVANCED .gitignore
+# Version 2.0 - Ultra Secure & Comprehensive
+# + Covers obscure cases & edge files
+# + Maximum protection & compatibility
+# ===============================
+
+# ===============================
+# System files & OS caches (extended)
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.Desktop.ini
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.lnk
+*.ini
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.log
+*.cache
+*.pid
+*.seed
+*.pid.lock
+
+# ===============================
+# Logs and debug files (extended)
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+pnpm-debug.log*
+coverage/
+*.lcov
+.nyc_output/
+.grunt/
+.bower_components/
+coverage/
+debug.log*
+
+# ===============================
+# Runtime & process files
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.swo
+*.swp
+*.swn
+*.viminfo
+
+# ===============================
+# Dependency & build directories
+node_modules/
+jspm_packages/
+bower_components/
+web_modules/
+build/
+dist/
+tmp/
+temp/
+out/
+release/
+target/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+out/
+.cache/
+.svelte-kit/
+.vite/
+.vitepress/
+.vitepress/cache/
+.vitepress/dist/
+.docusaurus/
+.serverless/
+
+# ===============================
+# Package manager files
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+.pnp.*
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/sdks/
+!.yarn/versions/
+
+# ===============================
+# Cache, lint & test files
+.npm/
+.eslintcache
+.stylelintcache
+.node_repl_history
+.yarn-integrity
+.nyc_output/
+*.tsbuildinfo
+.vscode-test/
+.sass-cache/
+.fusebox/
+.dynamodb/
+.firebase/
+.snowpack/
+.parcel-cache/
+.fusebox/
+.pnpm-debug.log*
+
+# ===============================
+# Environment & secrets
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.csr
+*.crt
+*.der
+*.pfx
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+*.pfx
+*.cer
+*.pem
+
+# ===============================
+# IDE & editor files
+.vscode/
+.idea/
+.history/
+.projectile
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+*.tmproj
+*.vscode-test/
+*.iml
+*.iws
+out/
+
+# ===============================
+# OS temp & backup files
+*~
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+
+# ===============================
+# Docker & container files
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+*.dockerignore
+volumes/
+
+# ===============================
+# Kubernetes / Helm
+*.kube.*
+helm/
+charts/
+
+# ===============================
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===============================
+# Database & cache files
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.sql
+.cache/
+.redis/
+
+# ===============================
+# Multimedia & archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ===============================
+# Compiled & binary files
+*.dll
+*.exe
+*.so
+*.dylib
+*.o
+*.obj
+*.out
+*.class
+*.exe
+*.test
+
+# ===============================
+# Language specific ignores
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.car
+*.project
+*.settings/
+*.classpath
+*.factorypath
+target/
+bin/
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+.config/
+.yardoc/
+_yardoc/
+coverage/
+InstalledFiles
+
+# PHP
+vendor/
+composer.lock
+composer.phar
+
+# Go
+*.exe
+*.test
+
+# Rust
+*.rs.bk
+
+# ===============================
+# Mobile specific
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+*.jar
+*.keystore
+*.jks
+local.properties
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+
+# iOS
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.xcworkspace/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# ===============================
+# Web frameworks
+# React / Next.js / Vue / Angular / Svelte / Gatsby
+.next/
+.nuxt/
+dist/
+.cache/
+.temp/
+.svelte-kit/
+.vite/
+.vitepress/
+.vitepress/cache/
+.vitepress/dist/
+.parcel-cache/
+.docusaurus/
+.serverless/
+
+# ===============================
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+*.log
+coverage/
+test-results/
+
+# ===============================
+# Misc
+.tern-port
+.jscsrc
+.jshintrc
+.eslintrc.js
+.stylelintrc.json
+.eslintcache
+.stylelintcache
+
+# ===============================
+# Important exceptions
+!README.md
+!LICENSE
+!*.config.js
+!*.config.json
+!.env.example
+
+# ===============================
+# Vite logs files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ===============================
+# End of Ultra Advanced .gitignore
+# ===============================
