@@ -7,7 +7,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 app = Flask(__name__)
 
-# استدعاء بأمان (ما غيبقاش يبان التوكن لأي واحد)
+# الحماية: كنعيطو للسواريت من إعدادات Vercel ماشي من الكود
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -17,7 +17,7 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 application = Application.builder().token(TOKEN).build()
 
 async def start(update: Update, context):
-    await update.message.reply_text("Dragon Bot Online! 🐉 دابا البوت محمي 100%.")
+    await update.message.reply_text("Dragon Bot Online! 🐉 دابا البوت محمي 100% وغادي يجاوبك Gemini.")
 
 async def handle_message(update: Update, context):
     try:
@@ -31,11 +31,12 @@ application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_m
 
 @app.route('/webhook', methods=['POST'])
 async def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    await application.initialize()
-    await application.process_update(update)
-    return "ok", 200
+    if request.method == "POST":
+        update = Update.de_json(request.get_json(force=True), application.bot)
+        await application.initialize()
+        await application.process_update(update)
+        return "ok", 200
 
 @app.route('/')
 def home():
-    return "Secure Bot is Running!"
+    return "Secure Bot is Running! 🚀"
